@@ -805,7 +805,11 @@
                                                           :resource-id resource-id
                                                           :form-id form-id
                                                           :organization {:organization/id "perf"}
-                                                          :workflow-id workflow-id}))))))
+                                                          :workflow-id workflow-id})
+                                 (create-category! {:actor owner
+                                                    :title {:en (str "Performance test resource " n)
+                                                            :fi (str "Suorituskykytestiresurssi " n)
+                                                            :sv (str "Licens för prestand " n)}}))))))
         user-ids (vec (in-parallel
                        (for [n (range-1 user-count)]
                          (fn []

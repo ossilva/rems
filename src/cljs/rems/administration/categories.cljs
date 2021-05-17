@@ -173,7 +173,7 @@
 (defn categories-page []
   (into [:div
          [administration/navigator]
-         [document-title (text :t.administration/catalogue-items)]
+         [document-title (text :t.administration/categories)]
          [flash-message/component :top]]
         (if @(rf/subscribe [::loading?])
           [[spinner/big]]
