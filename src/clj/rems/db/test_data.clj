@@ -805,11 +805,7 @@
                                                           :resource-id resource-id
                                                           :form-id form-id
                                                           :organization {:organization/id "perf"}
-                                                          :workflow-id workflow-id})
-                                 (create-category! {:actor owner
-                                                    :title {:en (str "Performance test resource " n)
-                                                            :fi (str "Suorituskykytestiresurssi " n)
-                                                            :sv (str "Licens för prestand " n)}}))))))
+                                                          :workflow-id workflow-id}))))))
         user-ids (vec (in-parallel
                        (for [n (range-1 user-count)]
                          (fn []
@@ -1090,7 +1086,15 @@
                              :resource-id res-organization-owner
                              :form-id form-organization-owner
                              :organization {:organization/id "organization1"}
-                             :workflow-id (:organization-owner workflows)})))
+                             :workflow-id (:organization-owner workflows)})
+    (create-category! {:actor organization-owner1
+                       :organization {:organization/id "organization1"}
+                       :id 13
+                       :data "data"
+                                                    ;; {:en (str "Performance test resource " n)
+                                                    ;;         :fi (str "Suorituskykytestiresurssi " n)
+                                                    ;;         :sv (str "Licens för prestand " n)}
+                       })))
 
 (defn create-organizations! [users]
   (let [owner (users :owner)

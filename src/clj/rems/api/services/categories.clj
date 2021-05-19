@@ -1,25 +1,51 @@
-(ns clj.rems.api.services.categories (:require [rems.api.services.dependencies :as dependencies]
-                                               [rems.api.services.util :as util]
-                                               [rems.db.applications :as applications]
-                                               [rems.db.core :as db]
-                                               [rems.db.catalogue :as catalogue]
-                                               [rems.db.organizations :as organizations]))
+(ns rems.api.services.categories (:require [rems.api.services.dependencies :as dependencies]
+                                           [rems.api.services.util :as util]
+                                           [rems.db.applications :as applications]
+                                           [rems.db.core :as db]
+                                           [rems.db.catalogue :as catalogue]
+                                           [rems.db.organizations :as organizations]))
 
-(defn create-category! [{:keys [localizations organization] :as command}]
+
+(defn create-resource! [{:keys [resid organization licenses]} user-id]
   (util/check-allowed-organization! organization)
-  (let [id (:id (db/create-category! (select-keys command [:id :title :start])))
-        loc-ids
-        (doall
-         (for [[langcode localization] localizations]
-           (:id (db/upsert-catalogue-item-localization! {:id id
-                                                         :langcode (name langcode)
-                                                         :title (:title localization)
-                                                         :infourl (:infourl localization)}))))]
-    ;; New dependencies introduced
+  (let [id (:id (db/create-resource! {:resid resid
+                                      :organization (:organization/id organization)
+                                      :owneruserid user-id
+                                      :modifieruserid user-id}))]
+    (doseq [licid licenses]
+      (db/create-resource-license! {:resid id
+                                    :licid licid}))
+    ;; reset-cache! not strictly necessary since resources don't depend on anything, but here for consistency
     (dependencies/reset-cache!)
+    {:success true
+     :id id}))
+
+(defn create-category! [{:keys [actor organization id data]}]
+  ;; (util/check-allowed-organization! organization)
+
+  ;;(let [id (:id (db/create-category! (select-keys command [:data])))
+
+        ;; loc-ids
+        ;; (doall
+        ;;  (for [[langcode localization] localizations]
+        ;;    ))
+      ;;  ]
+    ;; New dependencies introduced
+    ;; (dependencies/reset-cache!)
     ;; Reset cache so that next call to get localizations will get these ones.
-    (catalogue/reset-cache!)
-    {:success (not (some nil? (cons id loc-ids)))
+    ;; (catalogue/reset-cache!)
+  ;; {:success "false"
+  ;;   ;;  (not (some nil? (cons id loc-ids)))
+  ;;  :id id}
+    ;; )
+
+  ;; (util/check-allowed-organization! organization)
+  (let [id (:id (db/create-category! {:id id
+                              ;; :langcode (name langcode)
+                                      :data data}))]
+    ;; reset-cache! not strictly necessary since resources don't depend on anything, but here for consistency
+    (dependencies/reset-cache!)
+    {:success true
      :id id}))
 
 ;; (defn- join-dependencies [item]
